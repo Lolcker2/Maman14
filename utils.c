@@ -2,11 +2,14 @@
 #include <string.h>
 #include <stdint.h>
 #include <ctype.h>
-#include "defs.c"
+#include <stdarg.h>
+//#include "defs.c"
+
+
 #define MAX_LINE_LENGTH 100
 
 // max line should be changed
-
+//assuming that the int ot bin function
 // checks for non 'white' chars
 // returns 1 if white , 0 if not
 // params c : the char that's being checked
@@ -16,6 +19,82 @@ int is_empty_char(char c)
     return 0;
 }
 
+// reverses the given string and returns it
+char* reverse_str(char* str)
+{
+    char result[strlen(str)];
+    int i = strlen(str) -1;
+    for(int j = 0; j < strlen(str) && i >= 0; i--, j++) // 2 pointers: i and j
+        if(str[i] != '\0') {    // so '\0' wont be first
+            result[j] = str[i];
+        }
+    result[6] = '\0'; // closing the string
+
+    char* returned = (char*)result; // casting to char*
+    return  returned;
+}
+
+
+// converts num into a binary number with size digits.
+// params: num , size: the number that be converted, number of digits of the binary number
+char* int_to_bin(int num, int size)
+{
+    if(num < 0)		// if num is negative
+        {
+        num *= -1;
+        int power_of_two = 2;
+        for(int i =1; i<= size; i++)	// clac 2 to the power of size
+            {
+            power_of_two *= 2;
+            }
+        num = power_of_two - num;	// two's comliment
+        }
+
+
+    char result[size+1];    // size + 1 meaning '\0' at last index
+
+    int i = 0;
+    while(num > 0 && i < size)  // converting to binary
+        {
+        if(num % 2 == 1)
+        {
+            result[i] = '1';
+        }else {result[i] = '0';}
+
+        num = num / 2;
+        i++;
+        }
+
+    for(; i < size; i++)   // adding 0's to fit the size
+        {
+        result[i] = '0';
+        } result[i] = '\0'; // closing the string
+
+        return reverse_str(result); // reversing it
+}
+
+char* int_to_small_bin(int num)
+{
+    if(num < 0)		// if num is negative
+        {
+        char result[16];    // 16 meaning '\0' at last index
+
+        int i = 0;
+        while(num > 0 && i < 16)  // converting to binary
+            {
+            if(num % 2 == 1)
+            {
+                result[i] = '1';
+            }else {result[i] = '0';}
+
+            num = num / 2;
+            i++;
+            }
+        }
+
+
+
+}
 
 // moves to the next, closes non white char
 // params line, i: the current line, the index of the line scan
@@ -35,12 +114,14 @@ int move_not_empty_char(char* line, int i)
     return i;
 }
 
-int fprint_error(char* error, int line)
+int fprint_error(line_origin error_origin, char* error,...)
 {
-    printf("ERROR in line %d", line);
-    printf(" : ");
-    printf(" %s", error);
-
+    printf("ERROR in file %s, line %d : ", error_origin.file_name, error_origin.line_num);
+    va_list args;
+    va_start(args, error);
+    vprintf(error, args);
+    va_end(args);
+    printf("\n");
     return 0;
 }
 
@@ -74,7 +155,7 @@ int valid_label_name(char* name)
 
 // checks whether a label exists in that line, and checks for validation
 // params line, i, label : the current line, the index of line scan, the place to store the name
-int look_for_label(char* line, int i, char* label, int line_number)
+int look_for_label(char* line, int i, char* label, line_origin error_origin)
 {
     int line_len = (int)(strlen(line));    // max length
     char scanned[line_len];        // saves the name of the label
@@ -91,7 +172,7 @@ int look_for_label(char* line, int i, char* label, int line_number)
     {
         if(valid_label_name(line) == 0) // not valid, error and return
         {
-            fprint_error("Invalid label name",line_number);
+            fprint_error(error_origin, "Invalid label name");
             return 0;
         }
     }
@@ -99,7 +180,7 @@ int look_for_label(char* line, int i, char* label, int line_number)
 }
 
 
-instruction look_for_instruction(char* line, int i, struct instruction_item instructions[], int line_number)
+instruction look_for_instruction(char* line, int i, struct instruction_item instructions[], line_origin error_origin)
 {
     move_not_empty_char(line, i);
     if(line[i] != '.')
@@ -122,12 +203,12 @@ instruction look_for_instruction(char* line, int i, struct instruction_item inst
             return instructions[j].instruct;
         }
     }
-    fprint_error("Invalid instruction", line_number);
+    fprint_error(error_origin, "Invalid instruction");
     return NONE;
 }
 
 
-struct operation look_for_operation(char* line, int i, struct operation operations[], int line_number)
+struct operation look_for_operation(char* line, int i, struct operation operations[], line_origin error_origin)
 {
     move_not_empty_char(line, i);
     char scanned[MAX_LINE_LENGTH];
@@ -140,13 +221,14 @@ struct operation look_for_operation(char* line, int i, struct operation operatio
     scanned[j] = '\0';
     name = scanned;
 
-    for (int j = 0; j < 28; ++j) {
+    for (int 2
+    j = 0; j < 28; ++j) {
         if(strcmp(operations[j].name, name) == 0)
         {
             return operations[j];
         }
     }
-    fprint_error("Invalid operation", line_number);
+    fprint_error(error_origin, "Invalid operation");
     return operations[27];  // null
 }
 
@@ -156,7 +238,7 @@ int is_int(char* num)
     int i;
     if(num[0] == '-')
     {
-        i = 1;
+        i = 1;  // avoid the '-' char
     }
     else
     {
@@ -165,14 +247,14 @@ int is_int(char* num)
     for (; i < strlen(num); ++i) {
         if(isdigit(num[i]) == 0)
         {
-            return 0;
+            return 0;   // not an int
         }
     }
-    return 1;
+    return 1;   // it's an int
 }
 
 
-int process_instruction(char *line, int i, instruction instruct, char *symbol, int dc, table *symbol_table, int line_number)
+int process_instruction(char *line, int i, instruction instruct, char *symbol, int dc, table *symbol_table, image data_image, line_origin error_origin)
 {
     if(instruct == ASCIZ)
     {
@@ -184,13 +266,13 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, i
 
             if(valid_label_name(temp) == 0)
             {
-                fprint_error("Invalid label",line_number);
+                fprint_error(error_origin, "Invalid label");
                 return 0;
             }
 
             if(label_found == 1)
             {
-                fprint_error("Label was declared before",line_number);
+                fprint_error(error_origin, "Label was declared before");
                 return 0;
             }
             add_symbol_table(symbol, A_DATA, dc, symbol_table);
@@ -200,7 +282,7 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, i
         move_not_empty_char(line, i);
         if(line[i] != '"')
         {
-            fprint_error("Missing opening quotation mark",line_number);
+            fprint_error(error_origin, "Missing opening quotation mark");
             return 0;
         } i++;
 
@@ -213,20 +295,24 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, i
         scanned[j] = '\0';
         if(scanned[0] == '\0')
         {
-            fprint_error("Missing string after quotation mark",line_number);
-            return 0;
+            fprint_error(error_origin, "Missing string after quotation mark");		// eed to check example 2
+            return 0;		
         }
 
-        if(scanned[j-1] != '"')
+        if(scanned[j-1] != '"')		// need to change that
         {
-            fprint_error("Missing closing quotation mark",line_number);
+            fprint_error(error_origin, "Missing closing quotation mark");
             return 0;
         }
 
-        param = scanned;
+        param = scanned;    // param is the string itself
 
-        // add param to the data image
-        dc++;
+        for(int i =0; i < strlen(param); ++i)   // for every character
+        {
+            char character = int_to_bin((int)(param[i]), ); // cast it into binary
+            add_memory_img(data_image, character, dc);  // add to the data image
+            dc++;   // increment dc
+        }
     }
 
     if(instruct == EXTERN)
@@ -243,7 +329,7 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, i
 
         if(scanned[0] == '\0')
         {
-            fprint_error("Invalid label after .extern",line_number);
+            fprint_error(error_origin, "Invalid label after .extern");
             return 0;
         }
         param = scanned;
@@ -254,13 +340,13 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, i
 
         if(valid_label_name(temp) == 0)
         {
-            fprint_error("Invalid label",line_number);
+            fprint_error(error_origin, "Invalid label");
             return 0;
         }
 
         if(label_found == 1 && temp.attribute != A_EXTERNAL)
         {
-            fprint_error("Label was declared before, as external label",line_number);
+            fprint_error(error_origin, "Label was declared before, as external label");
             return 0;
         }
 
@@ -278,13 +364,13 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, i
 
             if(valid_label_name(temp) == 0)
             {
-                fprint_error("Invalid label",line_number);
+                fprint_error(error_origin, "Invalid label");
                 return 0;
             }
 
             if(label_found == 1)
             {
-                fprint_error("Label was declared before",line_number);
+                fprint_error(error_origin, "Label was declared before");
                 return 0;
             }
 
@@ -295,7 +381,7 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, i
         move_not_empty_char(line, i);
         if(line[i] == ',')
         {
-            fprint_error("Unexpected comma after .data instruction",line_number);
+            fprint_error(error_origin, "Unexpected comma after .data instruction");
             return 0;
         }
 
@@ -303,7 +389,9 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, i
             int j = 0;
             char scanned[MAX_LINE_LENGTH];
             char *temp, *trash_data;
-            long number;
+            int number;
+			int size;
+			char* value;
 
             for (; i < MAX_LINE_LENGTH && line[i] != EOF && line[i] && line[i] != '\t'
                    && line[i] != ',' && line[i] != ' ' && line[i] != '\n'; ++i, ++j) {
@@ -313,27 +401,34 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, i
             temp = scanned;
             if(is_int(temp) == 0)
             {
-                fprint_error("Invalid number for .data instruction",line_number);
+                fprint_error(error_origin, "Invalid number for .data instruction");
                 return 0;
             }
-            number = strtol(temp, &trash_data, 10);
-            //add number to data image with dc(DH, DB, DW)
+            number = strtol(temp, &trash_data, 10); // making the number an int
             if(instruct == DH)
             {
-
+				size = 16;
+				value = int_to_bin(number, size);
+				add_memory_img(data_image, value, dc);
+				dc++;
+			
             }
-
             else if(instruct == DB)
             {
-
+				size = 8;
+				value = int_to_bin(number, size);
+				add_memory_img(data_image, value, dc);
+				dc++;
             }
 
             else    //instruct is DW
             {
-
+				size =  32;
+				value = int_to_bin(number, size);
+				add_memory_img(data_image, value, dc);
+				dc++;
             }
 
-            // incroment dc
 
             move_not_empty_char(line, i);
             if(line[i] == ',')
@@ -349,12 +444,12 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, i
             move_not_empty_char(line, i);
             if(line[i] == ',')
             {
-                fprint_error("Repetitive use of comma",line_number);
+                fprint_error(error_origin, "Repetitive use of comma");
                 return 0;
             }
             else if(line[i] == '\n' || line[i] == EOF)
             {
-                fprint_error("Unexpected comma",line_number);
+                fprint_error(error_origin, "Unexpected comma");
                 return 0;
             }
 
@@ -367,10 +462,12 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, i
     {
         if(symbol[0] != '\0')
         {
-            fprint_error("Unexpected label at .entry instruction", line_number);
+            fprint_error(error_origin, "Unexpected label at .entry instruction");
             return 0;
         }
     }
 
     return 0;   // not succeed
 }
+
+

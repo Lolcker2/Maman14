@@ -28,48 +28,50 @@ typedef struct label_link
 {
     label symbol;
     table prev;
+    table next;
 } table_item;
 
 
 
-int add_symbol_table(char* symbol, ATTRIBUTE attr, int value, table *symbol_table, int line_number)
+int add_symbol_table(char* symbol, ATTRIBUTE attr, int value, table *symbol_table, line_origin error_origin)
 {
-    label temp = {symbol, value, attr};
-    void* malloc_ress  = malloc(sizeof(table));
+    label temp = {symbol, value, attr}; // create a label object from that data
+    void* malloc_ress  = malloc(sizeof(table));     // get new pointer
     if(!malloc_ress) {
         //printf();
         return 0;
     }
-    table new_item = (table)malloc_ress;
-    new_item -> symbol = temp;
-    if(!(*symbol_table))
+    table new_item = (table)malloc_ress;    // cast the void* to a table item
+    new_item -> symbol = temp;  // set up it's symbol
+    if(!(*symbol_table))    // first item
     {
         *symbol_table = new_item;
         return 1;
-    }
-    new_item -> prev = *symbol_table;
-    *symbol_table = new_item;
+    }   // not first item
+    new_item -> prev = *symbol_table;  // setting the prev item
+    (*symbol_table) ->next = new_item;  // setting the next item
+    *symbol_table = new_item;   // update the head
     return 1;
 }
 
 
 int find_label(char* symbol, table *symbol_table, label output_label)
 {
-    if(strcmp((*symbol_table)->symbol.name, symbol) == 0)
+    if(strcmp((*symbol_table)->symbol.name, symbol) == 0)   // it's head
     {
         output_label = (*symbol_table)->symbol;
         return 1;
     }
 
-    table *current_item = symbol_table;
+    table *current_item = symbol_table; // prevent aliasing
     while((*current_item)->prev)
     {
-        if(strcmp((*current_item)->symbol.name, symbol) == 0)
+        if(strcmp((*current_item)->symbol.name, symbol) == 0)   // it's the curren one
         {
-            output_label = (*current_item)->symbol;
+            output_label = (*current_item)->symbol; // ser up the returned symbol
             return 1;
         }
-        *current_item = (*current_item)-> prev;
+        *current_item = (*current_item)-> prev; // go on
     }
-    return 0;
+    return 0;   // not found
 }
