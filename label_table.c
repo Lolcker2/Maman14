@@ -10,8 +10,8 @@ typedef enum attributes
 {
     A_CODE,
     A_DATA,
-    A_EXTERNAL
-
+    A_EXTERNAL,
+    A_ENTRY
 }ATTRIBUTE;
 
 
@@ -20,6 +20,7 @@ typedef struct label
     char *name;
     int value;
     ATTRIBUTE attribute;
+    ATTRIBUTE second_attribute;
 } label;
 
 typedef struct label_link* table;
@@ -33,7 +34,7 @@ typedef struct label_link
 
 
 
-int add_symbol_table(char* symbol, ATTRIBUTE attr, int value, table *symbol_table, line_origin error_origin)
+int add_symbol_table(char* symbol, ATTRIBUTE attr, long value, table *symbol_table, line_origin error_origin)
 {
     label temp = {symbol, value, attr}; // create a label object from that data
     void* malloc_ress  = malloc(sizeof(table));     // get new pointer

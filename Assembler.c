@@ -1,18 +1,16 @@
-//#include "first_pass.c"
+#include "first_pass.c"
 #include <stdio.h>
-#include "defs.c"
 
-int check(int params,...)
+int work()
 {
-    int i =0;
-    printf("%d \n", params);
-    return 0;
-}
+    long fic, fdc;
+    table *symbol_table;
+    image *data_image, *operation_image;
+    line_origin curr_line;
+    int second_pass_flag = 1;   //1: do the second pass, 0; don't
 
-
-int main()
-{
-    // ----------------------- bin ----------------------------
-    check(5,6);
-    return 0;
+    //for each line
+    //if(first_pass_line(line, symbol_table, fcd, fic, operation_image, data_image, curr_line) == 0)
+    //{second_pass_flag = 0;}
+    return 1;
 }

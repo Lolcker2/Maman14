@@ -1,21 +1,22 @@
 #include <stdio.h>
 #include "utils.c"
-#include "label_table.c"
-#include "defs.c"
 
 
-int first_pass_line(char* line, table *symbol_table, int DC, int IC, int line_number) {
+int first_pass_line(char* line, table *symbol_table, long DC, long IC, image *operation_img,
+                    image *data_img, line_origin error_origin) {
+
     int line_index = 0;
     char *label;
     struct operation curr_operation;
     instruction instruct;
+    int error_flag = 1;     // 1: no error, 0: error has been found
 
     move_not_empty_char(line, line_index);
     if (!line[line_index] || line[line_index] == EOF || line[line_index] == '\n' || line[line_index] == ';') {
         return 1;
     }
 
-    if (look_for_label(line, line_index, label, line_number) == 0) {
+    if (look_for_label(line, line_index, label, error_origin) == 0) {
         return 0;
     }
 
@@ -24,21 +25,28 @@ int first_pass_line(char* line, table *symbol_table, int DC, int IC, int line_nu
         return 1;
     }
 
-    instruct = look_for_instruction(line, line_index, instruction_table, line_number);
+    instruct = look_for_instruction(line, line_index, instruction_table, error_origin);
     if(instruct != NONE)
     {
-        process_instruction(line, line_index, instruction_table, label, DC, symbol_table, line_number);
-        return 1;
+        if(process_instruction(line, line_index, instruction_table, label, DC, symbol_table, error_origin)  == 0)
+        {
+            error_flag = 0;
+        }
+        return error_flag;
     }
 
-    curr_operation = look_for_operation(line, line_index, operation_table, line_number);
+    curr_operation = look_for_operation(line, line_index, operation_table, error_origin);
     if(curr_operation == operation_table[27])
     {
-        fprint_error("Invalid line, no instruction nor operation were found", line_number);
+        fprint_error("Invalid line, no instruction nor operation were found", error_origin);
         return 0;
     }
 
-    process_operation(line, line_index, curr_operation, label, IC, symbol_table);
+    if(process_operation(line, line_index, curr_operation, label, IC, symbol_table, operation_table,
+                         register_table, operation_img, error_origin) == 0)
+    {
+        error_flag = 0;
+    }
 
-    return 1;
+    return error_flag;
 }
