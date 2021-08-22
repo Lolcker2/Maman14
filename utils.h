@@ -28,6 +28,9 @@ int fprint_error(line_origin error_origin, char* error,...);
 int str_alphanumeric(char* str);
 
 
+int not_register_or_function(char *name, instruction_item instructs[], operation opers[], struct register_item regs[]);
+
+
 int valid_label_name(char* name);
 
 

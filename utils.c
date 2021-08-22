@@ -147,7 +147,7 @@ int valid_label_name(char* name)
     int check1 = strlen(name) <= 31? 1 : 0;     // not too long
     int check2 = isalpha(name[0]) == 0? 0 : 1;  // first char is alpha
     int check3 = str_alphanumeric(name);       // other chars are alpha numeric
-    int not_register_or_function;     // not operation nor register nor instruction
+    int not_register_or_function(name, instruction_table, operation_table, register_table);     // not operation nor register nor instruction
 
     if(check1 == 1 && check2 == 1 && check3 == 1 && check4 == 1)
     {
