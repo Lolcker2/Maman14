@@ -28,7 +28,7 @@ int first_pass_line(char* line, table *symbol_table, long DC, long IC, image *op
     instruct = look_for_instruction(line, line_index, instruction_table, error_origin);
     if(instruct != NONE)
     {
-        if(process_instruction(line, line_index, instruct, instruction_table, label, DC, symbol_table, data_img,error_origin)  == 0)
+        if(process_instruction(line, line_index, instruct, label, DC, symbol_table, data_img, error_origin)  == 0)
         {
             error_flag = 0;
         }
