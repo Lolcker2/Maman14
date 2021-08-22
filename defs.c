@@ -140,7 +140,7 @@ struct operation operation_table[28] = {
 };
 
 
-typedef enum    // need to check how many registers
+typedef enum
 {
     $0 = 0,
     $1 = 1,
@@ -186,8 +186,8 @@ struct register_item
 
 typedef struct line
 {
-    int line_num;   // number of the line
-    char* file_name;    // name of the current file
+    int line_num;   /* number of the line */
+    char* file_name;    /* name of the current file */
 }line_origin;
 
 struct register_item register_table[33] =
@@ -231,13 +231,13 @@ typedef struct operation_input* op_in;
 
 typedef struct operation_input
 {
-    char input_type; // 'i' for int , 's' for string , 'r' for register
-    char *type_str; // for error messages
-    int int_input;  // the input of type int
-    char *str_input;    // the input of type str (char*)
-    registers reg_input;    // the input of type registers
-    op_in next; // next element
-    op_in prev; // prev element
+    char input_type; /* 'i' for int , 's' for string , 'r' for register */
+    char *type_str; /* for error messages */
+    int int_input;  /* the input of type int */
+    char *str_input;    /* the input of type str (char*) */
+    registers reg_input;    /* the input of type registers */
+    op_in next; /* next element */
+    op_in prev; /* prev element */
 
 }op_input;
 
@@ -247,40 +247,9 @@ typedef struct memory_image_item* img;
 
 typedef struct memory_image_item
 {
-	char *data;		// the actual data
-	int value;	// the  value
-	img next;   // next linked list structure
-	img prev;   // preveius linked list structure
+    char *data;		/* the actual data*/
+    int value;	/* the  value */
+	img next;   /* next linked list structure */
+	img prev;   /* previous linked list structure */
 }image;
 
-
-
-
-/*
-
-int main()
-{
-
-    int *ptr = (int*)malloc(sizeof(int));
-    int ten = 10;
-    ptr = &ten;
-    printf("hey,  %d \n", *ptr);
-    printf("size,  %d \n", (sizeof(operation_table)/ sizeof(struct operation)));
-
-     need to check for '-'.
-     if is, save it.
-     then check that every thing is int and convert.
-
-
-
-    int scanned[MAX_LINE_LENGTH];
-    int *params;
-    printf("scanned: %d \n", scanned[0]);
-
-    if(*params == NULL)
-    {
-        printf("params is NUll");
-    }
-    return 0;
-}
-*/

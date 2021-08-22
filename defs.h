@@ -190,8 +190,8 @@ struct register_item
 
 typedef struct line
 {
-    int line_num;   // number of the line
-    char* file_name;    // name of the current file
+    int line_num;
+    char* file_name;
 }line_origin;
 
 struct register_item register_table[33] =
@@ -235,13 +235,13 @@ typedef struct operation_input* op_in;
 
 typedef struct operation_input
 {
-    char input_type; // 'i' for int , 's' for string , 'r' for register
-    char *type_str; // for error messages
-    int int_input;  // the input of type int
-    char *str_input;    // the input of type str (char*)
-    registers reg_input;    // the input of type registers
-    op_in next; // next element
-    op_in prev; // prev element
+    char input_type;
+    char *type_str;
+    int int_input;
+    char *str_input;
+    registers reg_input;
+    op_in next;
+    op_in prev;
 
 }op_input;
 
@@ -251,9 +251,9 @@ typedef struct memory_image_item* img;
 
 typedef struct memory_image_item
 {
-    char *data;		// the actual data
-    int value;	// the  value
-    img next;   // next linked list structure
-    img prev;   // preveius linked list structure
+    char *data;
+    int value;
+    img next;
+    img prev;
 }image;
 

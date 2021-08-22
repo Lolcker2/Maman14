@@ -9,7 +9,7 @@ int first_pass_line(char* line, table *symbol_table, long DC, long IC, image *op
     char *label;
     struct operation curr_operation;
     instruction instruct;
-    int error_flag = 1;     // 1: no error, 0: error has been found
+    int error_flag = 1;     /* 1: no error, 0: error has been found */
 
     move_not_empty_char(line, line_index);
     if (!line[line_index] || line[line_index] == EOF || line[line_index] == '\n' || line[line_index] == ';') {
