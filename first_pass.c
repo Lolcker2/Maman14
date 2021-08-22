@@ -3,7 +3,7 @@
 
 
 int first_pass_line(char* line, table *symbol_table, long DC, long IC, image *operation_img,
-                    image *data_img, line_origin error_origin) {
+                    image data_img, line_origin error_origin) {
 
     int line_index = 0;
     char *label;
