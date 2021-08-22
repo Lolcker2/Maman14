@@ -114,6 +114,32 @@ int str_alphanumeric(char* str)
     }return 1;  // else
 }
 
+int not_register_or_function(char *name, instruction_item instructs[], operation opers[], struct register_item regs[])
+{
+    for (int i = 0; i < 6; ++i) // for each item in instruct, size of instructs is 6 (not including none)
+    {
+        if(strcmp(name, instructs[i].name) == 0)    // is instruction
+        {
+            return 0;
+        }
+    }
+
+    for (int i = 0; i < 27; ++i) // for each item in opers, size of opers is 27 (not including null)
+        {
+        if(strcmp(name, opers[i].name) == 0)    // is operation
+        {
+            return 0;
+        }
+
+            if(is_register(name, regs) == regs[32]) // register null
+            {
+                return 1;
+            }
+
+            return 0;   // it's a register
+        }
+}
+
 // checks whether a name is valid for a label
 // param name: the name that's being checked
 int valid_label_name(char* name)
@@ -121,7 +147,7 @@ int valid_label_name(char* name)
     int check1 = strlen(name) <= 31? 1 : 0;     // not too long
     int check2 = isalpha(name[0]) == 0? 0 : 1;  // first char is alpha
     int check3 = str_alphanumeric(name);       // other chars are alpha numeric
-    int check4;     // not op code nor register
+    int not_register_or_function;     // not operation nor register nor instruction
 
     if(check1 == 1 && check2 == 1 && check3 == 1 && check4 == 1)
     {
@@ -476,7 +502,7 @@ registers is_register(char* reg, struct register_item registers_table[])
             return registers_table[i].reg;
             }
         }
-    return registers_table[10].reg;  // null
+    return registers_table[32].reg;  // null
 
         }
 
