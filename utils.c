@@ -7,7 +7,7 @@
 #include "label_table.c"
 
 
-#define MAX_LINE_LENGTH 100
+
 
 // max line should be changed
 //assuming that the int ot bin function
@@ -711,7 +711,7 @@ registers is_register(char* reg, struct register_item registers_table[])
                 fprint_error(error_origin, "Incorrect label naming");
                 return 0;
             }
-            if(temp.attribute == A_EXTERNAL)     // external label
+            if(temp.attribute == A_EXTERNAL)     // data completion at second pass
                 {
                     char* curr_op_code = int_to_bin(oper.op_code, 6);
                     char data[OPERATION_LENGTH];
@@ -756,7 +756,7 @@ registers is_register(char* reg, struct register_item registers_table[])
             ic+=4;
         }
         return 1;
-    }   // htere
+    }
     if(oper.op_type == 'I')
     {
 
@@ -838,9 +838,9 @@ registers is_register(char* reg, struct register_item registers_table[])
             registers rs;
             label temp;
 
-            if((*input_table).input_type == 's')    // third input must be a label (type string)
+            if((*input_table).input_type != 's')    // third input must be a label (type string)
                 {
-                //fprint();
+                    fprint_error(error_origin, "Expected label, got", (*input_table).type_str);
                 return 0;
                 }
 
@@ -849,10 +849,26 @@ registers is_register(char* reg, struct register_item registers_table[])
                 fprint_error(error_origin, "Incorrect label naming");
                 return 0;
             }
-            if(temp.attribute == A_EXTERNAL)     // input mustn't be an external label
+            if(temp.attribute == A_EXTERNAL)     // data completion at second pass
                 {
-                //fprint();
-                return 0;
+                char* curr_op_code = int_to_bin(oper.op_code, 6);
+                char data[OPERATION_LENGTH];
+                char input = '0';
+                int i = 0;
+                for (; i < 25; i++)
+                {
+                    data[i] = '?';
+                }
+                i = 25;
+                data[i] = input;
+                for(; i < 32; i++)
+                {
+                    data[i] = curr_op_code[i];
+                }
+
+                add_memory_img(memory_img, data, ic);
+                ic+=4;
+                return 1;
                 }
 
             input_table = (*input_table).prev;   // number of inputs is 3
