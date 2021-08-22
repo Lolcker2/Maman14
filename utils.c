@@ -3,8 +3,8 @@
 #include <stdint.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include "defs.c"
-#include "label_table.c"
+#include "defs.h"
+#include "label_table.h"
 
 
 
@@ -114,7 +114,7 @@ int str_alphanumeric(char* str)
     }return 1;  // else
 }
 
-int not_register_or_function(char *name, instruction_item instructs[], operation opers[], struct register_item regs[])
+int not_register_or_function(char *name, instruction_item instructs[], struct operation opers[], struct register_item regs[])
 {
     for (int i = 0; i < 6; ++i) // for each item in instruct, size of instructs is 6 (not including none)
     {
@@ -147,7 +147,7 @@ int valid_label_name(char* name)
     int check1 = strlen(name) <= 31? 1 : 0;     // not too long
     int check2 = isalpha(name[0]) == 0? 0 : 1;  // first char is alpha
     int check3 = str_alphanumeric(name);       // other chars are alpha numeric
-    int not_register_or_function(name, instruction_table, operation_table, register_table);     // not operation nor register nor instruction
+    int check4 = not_register_or_function(name, instruction_table, operation_table, register_table);     // not operation nor register nor instruction
 
     if(check1 == 1 && check2 == 1 && check3 == 1 && check4 == 1)
     {
@@ -201,8 +201,8 @@ instruction look_for_instruction(char* line, int i, struct instruction_item inst
     }
     scanned[j] = '\0';
     name = scanned;
-
-    for (int j = 0; j < 7; ++j) {
+    j = 0;
+    for (; j < 7; ++j) {
         if(strcmp(instructions[j].name, name) == 0)
         {
             return instructions[j].instruct;
@@ -225,9 +225,8 @@ struct operation look_for_operation(char* line, int i, struct operation operatio
     }
     scanned[j] = '\0';
     name = scanned;
-
-    for (int 2
-    j = 0; j < 28; ++j) {
+    j = 0;
+    for (; j < 28; ++j) {
         if(strcmp(operations[j].name, name) == 0)
         {
             return operations[j];
@@ -269,7 +268,7 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, l
 
             int label_found = find_label(symbol, symbol_table, temp);
 
-            if(valid_label_name(temp) == 0)
+            if(valid_label_name(temp.name) == 0)
             {
                 fprint_error(error_origin, "Invalid label");
                 return 0;
@@ -280,7 +279,7 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, l
                 fprint_error(error_origin, "Label was declared before");
                 return 0;
             }
-            add_symbol_table(symbol, A_DATA, dc, symbol_table);
+            add_symbol_table(symbol, A_DATA, dc, symbol_table, error_origin);
             dc++;
         }
 
@@ -300,7 +299,7 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, l
         scanned[j] = '\0';
         if(scanned[0] == '\0')
         {
-            fprint_error(error_origin, "Missing string after quotation mark");		// eed to check example 2
+            fprint_error(error_origin, "Missing string after quotation mark");
             return 0;		
         }
 
@@ -312,9 +311,10 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, l
 
         param = scanned;    // param is the string itself
 
-        for(int i =0; i < strlen(param); ++i)   // for every character
+        i = 0;
+        for(; i < strlen(param); ++i)   // for every character
         {
-            char character = int_to_bin((int)(param[i]), ); // cast it into binary
+            char* character = int_to_bin((int)(param[i]), 8); // cast it into binary
             add_memory_img(data_image, character, dc);  // add to the data image
             dc++;   // increment dc
         }
@@ -343,7 +343,7 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, l
 
         int label_found = find_label(param, symbol_table, temp);
 
-        if(valid_label_name(temp) == 0)
+        if(valid_label_name(temp.name) == 0)
         {
             fprint_error(error_origin, "Invalid label");
             return 0;
@@ -355,7 +355,7 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, l
             return 0;
         }
 
-        add_symbol_table(param, A_EXTERNAL, 0, symbol_table);
+        add_symbol_table(param, A_EXTERNAL, 0, symbol_table, error_origin);
     }
 
     if(instruct == DH || instruct == DB || instruct == DW)  // DATA INSTRUCTION
@@ -367,7 +367,7 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, l
 
             int label_found = find_label(symbol, symbol_table, temp);
 
-            if(valid_label_name(temp) == 0)
+            if(valid_label_name(temp.name) == 0)
             {
                 fprint_error(error_origin, "Invalid label");
                 return 0;
@@ -379,7 +379,7 @@ int process_instruction(char *line, int i, instruction instruct, char *symbol, l
                 return 0;
             }
 
-            add_symbol_table(symbol, A_DATA, dc, symbol_table);
+            add_symbol_table(symbol, A_DATA, dc, symbol_table, error_origin);
             dc++;
         }
 
@@ -577,6 +577,7 @@ registers is_register(char* reg, struct register_item registers_table[])
         }
         scanned[j] = '\0';
         registers reg;
+
         if(reg = is_register(scanned, register_table) != reg_none)    // current input is a register
             {
             add_op_input(input_table, 'r', 0, "str", reg, "register");   // the 0, "str" are not used
@@ -588,7 +589,7 @@ registers is_register(char* reg, struct register_item registers_table[])
             }
         else    // it's a string
         {
-            add_op_input(input_table, 's', 0, scanned, reg_none "char*");   // the 0, Null are not used
+            add_op_input(input_table, 's', 0, scanned, reg_none ,"char*");   // the 0, Null are not used
         }
 
         num_of_operands++;
@@ -661,18 +662,17 @@ registers is_register(char* reg, struct register_item registers_table[])
             else    // input is a register
             {
                 registers temp;
-                temp = is_register((*input_table).reg_input , regs);
-                if(!temp)
+                if((*input_table).reg_input == reg_none)
                 {
-                    //printf();
+                    fprint_error(error_origin, "Couldn't recognize the given register");
                     return 0;
                 }
+
                 curr_address = int_to_bin((int)temp, 25); // setting up the address of the register
                 input = '1';
             }
-            // ----------------------- bin ----------------------------
             char data[OPERATION_LENGTH];
-            int i = 0;
+            i = 0;
             for (; i < 25; i++)
             {
                 data[i] = curr_address[i];
@@ -684,7 +684,7 @@ registers is_register(char* reg, struct register_item registers_table[])
                 data[i] = curr_op_code[i];
             }
 
-            add_memory_img(data, ic);
+            add_memory_img(memory_img, data, ic);
 
             }
         else if(oper.op_code ==  op_stop)   // stop operation
@@ -696,7 +696,8 @@ registers is_register(char* reg, struct register_item registers_table[])
             }
 
             char *curr_op_code = int_to_bin(oper.op_code, 6);
-            char *curr_address "0000000000000000000000000"; // 25 bit of 0
+            char curr_address[25] = {'0', '0','0', '0','0', '0','0', '0','0', '0','0', '0','0', '0','0', '0','0',
+                                     '0','0', '0','0', '0','0', '0',}; // 25 bit of 0
             char input = '0';
 
             char data[OPERATION_LENGTH];
@@ -712,7 +713,7 @@ registers is_register(char* reg, struct register_item registers_table[])
                 data[i] = curr_op_code[i];
             }
 
-            add_memory_img(data, ic);
+            add_memory_img(memory_img, data, ic);
             ic+=4;
 
             }
@@ -1065,7 +1066,7 @@ registers is_register(char* reg, struct register_item registers_table[])
             char *not_in_use = "00000"; // 5 bit of 0
 
             char* data;
-            int i = 0;
+            i = 0;
             for(;i < 6; i++)
             {
                 data[i] = not_in_use[i];
@@ -1103,19 +1104,18 @@ registers is_register(char* reg, struct register_item registers_table[])
             }
         else	// move, mvhi, mvlo
         {
-            // bin ------------------------------------
             if(num_of_operands != 2)
             {
                 fprint_error(error_origin, "Expected 2 operands, got %d", num_of_operands);
                 return 0;
             }
-            // bin ------------------------------------
             if((*input_table).input_type != 'r') // second input must be a register
                 {
                 fprint_error(error_origin, "Expected register type, got %s type", (*input_table).type_str);
                 return 0;
                 }
 
+            registers rs = (*input_table).reg_input;
             input_table = (*input_table).prev;   // number of inputs is 2
 
             if((*input_table).input_type != 'r') // first input must be a register
@@ -1123,8 +1123,8 @@ registers is_register(char* reg, struct register_item registers_table[])
                 fprint_error(error_origin, "Expected register type, got %s type", (*input_table).type_str);
                 return 0;
                 }
+            registers td = (*input_table).reg_input;
 
-            //bin ----------------------------------------
             char *bin_rd = int_to_bin(rd, 5);
             char *bin_rt = "00000"; // 5 bit of 0
             char *bin_rs = int_to_bin(rs, 5 );

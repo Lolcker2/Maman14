@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "utils.c"
+#include "utils.h"
 
 
 int first_pass_line(char* line, table *symbol_table, long DC, long IC, image *operation_img,
@@ -28,7 +28,7 @@ int first_pass_line(char* line, table *symbol_table, long DC, long IC, image *op
     instruct = look_for_instruction(line, line_index, instruction_table, error_origin);
     if(instruct != NONE)
     {
-        if(process_instruction(line, line_index, instruction_table, label, DC, symbol_table, error_origin)  == 0)
+        if(process_instruction(line, line_index, instruct, instruction_table, label, DC, symbol_table, data_img,error_origin)  == 0)
         {
             error_flag = 0;
         }
@@ -36,9 +36,9 @@ int first_pass_line(char* line, table *symbol_table, long DC, long IC, image *op
     }
 
     curr_operation = look_for_operation(line, line_index, operation_table, error_origin);
-    if(curr_operation == operation_table[27])
+    if(curr_operation.op_type == operation_table[27].op_type)
     {
-        fprint_error("Invalid line, no instruction nor operation were found", error_origin);
+        fprint_error(error_origin, "Invalid line, no instruction nor operation were found");
         return 0;
     }
 
